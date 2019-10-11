@@ -4,7 +4,7 @@ import * as Yup from 'yup';
 import axios from 'axios';
 
 const UserForm = props => {
-    const [user, setUser] = useState([]);
+    const [users, setUsers] = useState([]);
 
     return (
         <div className="user-form">
@@ -16,15 +16,54 @@ const UserForm = props => {
                     <Field
                         type="checkbox"
                         name="terms"
-                        // checked={props.values.terms}
+                        checked={props.values.terms}
                         />
                         Terms of Service
                         <span className="checkmark" />
                 </label>
                 <button type="submit">Submit!</button>
             </Form>
+            {users.map(user => (
+                <ul key={user.id}>
+                    <li>Name: {user.name}</li>
+                    <li>Email: {user.email}</li>
+                    <li>Password: {user.password}</li>
+                </ul>
+            ))}
         </div>
     )
 }
+const myMapProps = props => {
+    console.log(props);
+    const newObj = {
+        name: props.name || '',
+        email: props.email || '',
+        password: props.password || '',
+        terms: props.terms || true,
+    }
+    return newObj;
+};
 
-export default UserForm;
+const mySubmit = (values, { setStatus }) => {
+    axios
+        .post("https://reqres.in/api/users", values)
+        .then(res => {
+            console.log(res);
+            setStatus(res.data);
+        })
+        .catch(err => console.log(err));
+};
+
+const formikObj = {
+    mapPropsToValues: myMapProps,
+    handleSubmit: mySubmit,
+    // validationSchema: yupSchema
+};
+
+
+
+const NewForm = withFormik(formikObj);
+
+const NewUserForm = NewForm(UserForm);
+
+export default NewUserForm;
